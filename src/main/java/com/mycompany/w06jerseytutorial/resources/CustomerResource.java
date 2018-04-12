@@ -90,6 +90,24 @@ public class CustomerResource {
      *
      * @param id
      * @param accNo
+     * @return accountBalance
+     * @throws JSONException
+     */
+    @GET
+    @Path("/{id}/account/{accountno}/balance")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response displayBalance(@PathParam("id") int id, @PathParam("accountno") int accNo) throws JSONException {
+        Account target = customerService.getAccountByAccNo(id, accNo);
+        int currentBalance = target.getAccBalance();
+        JSONObject output = new JSONObject();
+        output.put("balance", currentBalance);
+        return Response.status(Response.Status.OK).entity(output.toString()).build();
+    }
+
+    /**
+     *
+     * @param id
+     * @param accNo
      * @param lodgementAmount
      * @return final accountBalance after Customer makes lodgement
      * @throws JSONException
