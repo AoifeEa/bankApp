@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.json.Json;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,6 +28,8 @@ import javax.ws.rs.core.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -102,6 +105,34 @@ public class CustomerResource {
         JSONObject output = new JSONObject();
         output.put("balance", currentBalance);
         return Response.status(Response.Status.OK).entity(output.toString()).build();
+    }
+
+    /**
+     *
+     * @param body
+     * @return JSON string with new user info. ID is updated to end of list index
+     * @throws JSONException
+     * @throws ParseException
+     */
+    @POST
+    @Path("/new")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createCustomer(String body) throws JSONException, ParseException {
+        Gson gson = new Gson();
+        Customer newCustomer = gson.fromJson(body, Customer.class);
+        int newId = getAllCustomers().size() + 1;
+        for (Customer cust : getAllCustomers()) {
+            if (newCustomer.getEmail().equalsIgnoreCase(cust.getEmail())) {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+        }
+        newCustomer.setId(newId);
+        customerService.addNewCustomer(newCustomer);
+        Map<String, String> map = new HashMap<>();
+        map.put("customer_created", "true");
+        map.put("uri", "/api/customer/id/" + newCustomer.getId());
+        return Response.status(Response.Status.CREATED).entity(gson.toJson(map)).build();
     }
 
     /**

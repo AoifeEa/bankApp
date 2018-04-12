@@ -33,6 +33,10 @@ public class CustomerService {
         list.add(c1);
         list.add(c2);
     }
+    
+    public void addNewCustomer(Customer newCustomer){
+        list.add(newCustomer);
+    }
 
     public List<Customer> getAllCustomers() {
         return list;
