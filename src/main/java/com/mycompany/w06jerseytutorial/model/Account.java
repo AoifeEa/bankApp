@@ -22,12 +22,22 @@ public class Account {
     public Account() {
     }
 
+    public Account(int accountNo, int sortCode) {
+        this.accountNo = accountNo;
+        this.sortCode = sortCode;
+        this.transactions = new ArrayList();
+    }
+
+    public void addTransaction(Transactions e) {
+        transactions.add(e);
+    }
+
     public void lodge(int amount) {
         int currentBalance = getAccBalance();
         setAccBalance(amount + currentBalance);
     }
-    
-    public void transferFunds(Account targetTransfer, int amount){
+
+    public void transferFunds(Account targetTransfer, int amount) {
         int targetTransBal = targetTransfer.getAccBalance();
         targetTransfer.setAccBalance(targetTransBal + amount);
     }
@@ -37,21 +47,8 @@ public class Account {
         setAccBalance(currentBalance - amount);
     }
 
-    public Account(List<Transactions> transactions) {
-        this.transactions = new ArrayList();
-    }
-
-    public void addTransaction(Transactions e) {
-        transactions.add(e);
-    }
-
     public Account(int accBalance) {
         this.accBalance = accBalance;
-    }
-
-    public Account(int accountNo, int sortCode) {
-        this.accountNo = accountNo;
-        this.sortCode = sortCode;
     }
 
     public int getAccountNo() {
