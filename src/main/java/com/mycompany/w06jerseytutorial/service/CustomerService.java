@@ -8,6 +8,7 @@ package com.mycompany.w06jerseytutorial.service;
 import com.mycompany.w06jerseytutorial.model.Account;
 import com.mycompany.w06jerseytutorial.model.Customer;
 import com.mycompany.w06jerseytutorial.model.SavingsAccount;
+import com.mycompany.w06jerseytutorial.model.Transactions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,6 @@ import java.util.List;
 public class CustomerService {
 
     public static List<Customer> list = new ArrayList<>();
-
     public static Account account = new Account();
     public static Customer customer = new Customer();
 
@@ -32,9 +32,10 @@ public class CustomerService {
 
         list.add(c1);
         list.add(c2);
+
     }
-    
-    public void addNewCustomer(Customer newCustomer){
+
+    public void addNewCustomer(Customer newCustomer) {
         list.add(newCustomer);
     }
 
@@ -63,31 +64,19 @@ public class CustomerService {
         }
         return null;
     }
-    
-//    public Account getAccountByAccNoOnly(int accNo){
-//        Customer target = new Customer();
-//        List<Account> acc = target.getAccounts();
-//        for (Account account1 : acc) {
-//            if (account1.getAccountNo() == accNo) {
-//                return account1;
-//            }
-//        }
-//        return null;
-//    }
-    
 
     public void lodge(int amount) {
         int currentBalance = account.getAccBalance();
         account.setAccBalance(amount + currentBalance);
     }
-    
-    public boolean sufficientFunds(Account target, int withdraw){
+
+    public boolean sufficientFunds(Account target, int withdraw) {
 
         int currentBalance = target.getAccBalance();
-        if(withdraw > currentBalance){
+        if (withdraw > currentBalance) {
             return false;
         }
-        return true;     
+        return true;
     }
 
 }
