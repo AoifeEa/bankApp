@@ -11,6 +11,7 @@ import com.mycompany.w06jerseytutorial.model.SavingsAccount;
 import com.mycompany.w06jerseytutorial.model.Transactions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -38,6 +39,42 @@ public class CustomerService {
     public void addNewCustomer(Customer newCustomer) {
         list.add(newCustomer);
     }
+
+    public List<Account> getAllAccounts() {
+        // List<Account> allAccounts = new ArrayList<>();
+        for (Customer customer1 : list) {
+            List<Account> accs = customer1.getAccounts();
+            return accs;
+        }
+        return null;
+    }
+
+//    public boolean existingAccount(int accNumber) {
+//        // List<Account> allAccounts = new ArrayList<>();
+//        for (Customer customer1 : list) {
+//            List<Account> accs = customer1.getAccounts();
+//            for (Account acc : accs) {
+//                if(accNumber == acc.getAccountNo())
+//                    return true;
+//            }
+//        }
+//        return false;
+//    }
+    
+//        public int existingAccount() {
+//        // List<Account> allAccounts = new ArrayList<>();
+//        int rando = accNoGenerator();
+//        for (Customer customer1 : list) {
+//            List<Account> accs = customer1.getAccounts();
+//            for (Account acc : accs) {
+//                if(accNumber == acc.getAccountNo())
+//                    return true;
+//            }
+//        }
+//        return false;
+//    }
+    
+    
 
     public List<Customer> getAllCustomers() {
         return list;
@@ -77,6 +114,22 @@ public class CustomerService {
             return false;
         }
         return true;
+    }
+
+    public Customer getCustomerByName(String firstName, String lastName) {
+        for (Customer customer1 : list) { //searches list 
+            if (firstName.equalsIgnoreCase(customer1.getFirstName()) && lastName.equalsIgnoreCase(customer1.getSecondName())) { // searches name and compares
+                return customer1;
+            }
+        }
+        return null;
+    }
+
+    public int accNoGenerator() {
+        Random rand = new Random();
+        int n = rand.nextInt(99999999) + 10000000; // create 8 digit acc no
+
+        return n;
     }
 
 }

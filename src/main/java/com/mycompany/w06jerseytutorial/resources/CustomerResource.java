@@ -8,6 +8,7 @@ package com.mycompany.w06jerseytutorial.resources;
 import com.google.gson.Gson;
 import com.mycompany.w06jerseytutorial.model.Account;
 import com.mycompany.w06jerseytutorial.model.Customer;
+import com.mycompany.w06jerseytutorial.model.SavingsAccount;
 import com.mycompany.w06jerseytutorial.model.Transactions;
 import com.mycompany.w06jerseytutorial.service.CustomerService;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class CustomerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
+        return customerService.getAllCustomers(); // gets all customers
     }
 
     /**
@@ -60,14 +61,74 @@ public class CustomerResource {
     @Path("/id/{param}")
     @Produces(MediaType.APPLICATION_JSON)
     public Customer getCustomerByIDJSON(@PathParam("param") int id) {
-        return customerService.getCustomerById(id);
+        return customerService.getCustomerById(id); // gets customer by ID
+    }
+
+    /**
+     *
+     * @return accounts for all users
+     */
+    @GET
+    @Path("/accounts")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Account> getAllAccounts() {
+        return customerService.getAllAccounts(); // gets customer by ID
+    }
+
+    /**
+     *
+     * @param id
+     * @param sortCode
+     * @return response indicating customer has created new account
+     * @throws JSONException
+     */
+    @POST
+    @Path("/id/{param}/create/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createNormalAccount(@PathParam("param") int id, String sortCode) throws JSONException {
+        Customer target = customerService.getCustomerById(id); // gets customer by ID
+        JSONObject jsonObj = new JSONObject(sortCode);
+        int sort = jsonObj.getInt("sortCode");
+        int newAccNo = customerService.accNoGenerator();
+
+        target.addAccount(new Account(newAccNo, sort)); // new account with random gen number and sort code from json user input
+        JSONObject output = new JSONObject();
+        output.put("account_created", "true");
+        output.put("account_number", newAccNo);
+        return Response.status(Response.Status.ACCEPTED).entity(output.toString()).build();
+    }
+
+    /**
+     *
+     * @param id
+     * @param sortCode
+     * @return response indicating a new savings account has been created for
+     * that customer
+     * @throws JSONException
+     */
+    @POST
+    @Path("/id/{param}/create/savings")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createSavingsAccount(@PathParam("param") int id, String sortCode) throws JSONException {
+        Customer target = customerService.getCustomerById(id); // gets customer by ID
+        JSONObject jsonObj = new JSONObject(sortCode);
+        int sort = jsonObj.getInt("sortCode");
+        int newAccNo = customerService.accNoGenerator();
+
+        target.addAccount(new SavingsAccount(newAccNo, sort)); // new account with random gen number and sort code from json user input
+        JSONObject output = new JSONObject();
+        output.put("account_created", "true");
+        output.put("account_number", newAccNo);
+        return Response.status(Response.Status.ACCEPTED).entity(output.toString()).build();
     }
 
     @GET
     @Path("/name/{first}/{last}")
     @Produces(MediaType.APPLICATION_JSON)
     public Customer getCustomerByName(@PathParam("first") String firstName, @PathParam("last") String lastName) {
-        return customerService.getCustomerByName(firstName, lastName);
+        return customerService.getCustomerByName(firstName, lastName); // gets customer by name
     }
 
     /**
@@ -79,7 +140,7 @@ public class CustomerResource {
     @Path("/{id}/account")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Account> getAccById(@PathParam("id") int id) {
-        return customerService.getAccountsById(id);
+        return customerService.getAccountsById(id); // gets all accounts associated with customer ID
     }
 
     /**
@@ -93,7 +154,7 @@ public class CustomerResource {
     @Path("/{id}/account/{accountno}")
     @Produces(MediaType.APPLICATION_JSON)
     public Account getAccByAccNo(@PathParam("id") int id, @PathParam("accountno") int accNo) {
-        return customerService.getAccountByAccNo(id, accNo);
+        return customerService.getAccountByAccNo(id, accNo); // gets specific account by acc no
     }
 
     /**
@@ -108,7 +169,7 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response displayBalance(@PathParam("id") int id, @PathParam("accountno") int accNo) throws JSONException {
         Account target = customerService.getAccountByAccNo(id, accNo);
-        int currentBalance = target.getAccBalance();
+        int currentBalance = target.getAccBalance(); // gets balance
         JSONObject output = new JSONObject();
         output.put("balance", currentBalance);
         return Response.status(Response.Status.OK).entity(output.toString()).build();
@@ -128,9 +189,10 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createCustomer(String body) throws JSONException, ParseException {
         Gson gson = new Gson();
-        Customer newCustomer = gson.fromJson(body, Customer.class);
-        int newId = getAllCustomers().size() + 1;
-        for (Customer cust : getAllCustomers()) {
+        Customer newCustomer = gson.fromJson(body, Customer.class
+        ); //gives customer new id for the index at end of the list of customers
+        int newId = getAllCustomers().size() + 1; //gives customer new id for the index at end of the list of customers
+        for (Customer cust : getAllCustomers()) { //customer must have unique email to register
             if (newCustomer.getEmail().equalsIgnoreCase(cust.getEmail())) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -139,6 +201,7 @@ public class CustomerResource {
         customerService.addNewCustomer(newCustomer);
         Map<String, String> map = new HashMap<>();
         map.put("customer_created", "true");
+        //shows new customer ID
         map.put("uri", "/api/customer/id/" + newCustomer.getId());
         return Response.status(Response.Status.CREATED).entity(gson.toJson(map)).build();
     }
@@ -160,9 +223,9 @@ public class CustomerResource {
         Account target = customerService.getAccountByAccNo(id, accNo);
         JSONObject jsonObj = new JSONObject(lodgementAmount);
         int lodgement = jsonObj.getInt("lodgementAmount");
-        target.lodge(lodgement);
+        target.lodge(lodgement); // sets balance of account in order to lodge funds
 
-        int newBalance = target.getAccBalance();
+        int newBalance = target.getAccBalance(); // balance updated
         target.addTransaction(new Transactions(new Date(), "Credit", "Lodgement", newBalance));
         JSONObject output = new JSONObject();
         output.put("lodgement_made", "true");
@@ -190,8 +253,8 @@ public class CustomerResource {
         Account target = customerService.getAccountByAccNo(id, accNo);
         JSONObject jsonObj = new JSONObject(withdrawalAmount);
         int withdraw = jsonObj.getInt("withdrawalAmount");
-        if (customerService.sufficientFunds(target, withdraw) == true) {
-            target.withdrawal(withdraw);
+        if (customerService.sufficientFunds(target, withdraw) == true) { // customer must have funds >= withdrawal amount in order to withdraw
+            target.withdrawal(withdraw); // withdraws funds
             int newBalance = target.getAccBalance();
             target.addTransaction(new Transactions(new Date(), "Debit", "Withdrawal", newBalance));
             JSONObject output = new JSONObject();
@@ -219,14 +282,14 @@ public class CustomerResource {
         JSONObject jsonObj = new JSONObject(transferAmount);
         int trans = jsonObj.getInt("transferAmount");
         Account targetTransfer = customerService.getAccountByAccNo(targetId, transferAcc);
-        if (customerService.sufficientFunds(current, trans) == true) {
-            current.transferFunds(targetTransfer, trans);
-            current.withdrawal(trans);
+        if (customerService.sufficientFunds(current, trans) == true) { // customers funds must be >= transaction amount to transfer funds
+            current.transferFunds(targetTransfer, trans); // funds tranferred, target account balance is updated
+            current.withdrawal(trans); // transfereed funds are withdrawm from account
 
             int newBalance = current.getAccBalance();
             int transTargetNewBal = targetTransfer.getAccBalance();
-            current.addTransaction(new Transactions(new Date(), "Debit", "Transfer", newBalance));
-            targetTransfer.addTransaction(new Transactions(new Date(), "Credit", "Transfer", newBalance));
+            current.addTransaction(new Transactions(new Date(), "Debit", "Transfer", newBalance)); // transaction added to customer who transfers funds
+            targetTransfer.addTransaction(new Transactions(new Date(), "Credit", "Transfer", newBalance)); // transaction added to customer who recieves transferred funds
             JSONObject output = new JSONObject();
             output.put("transfer_made", "true");
             output.put("transfer_amount", trans);
@@ -250,7 +313,7 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Transactions> displayTransactions(@PathParam("id") int id, @PathParam("accountno") int accNo) {
         Account target = customerService.getAccountByAccNo(id, accNo);
-        return target.getTransactions();
+        return target.getTransactions(); // returns all teansactions for specified account
     }
 
 }
