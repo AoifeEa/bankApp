@@ -91,11 +91,12 @@ public class CustomerResource {
         JSONObject jsonObj = new JSONObject(sortCode);
         int sort = jsonObj.getInt("sortCode");
         int newAccNo = customerService.accNoGenerator();
-
-        target.addAccount(new Account(newAccNo, sort)); // new account with random gen number and sort code from json user input
+        int uniqueAcc = customerService.generateUniqueAccNo(newAccNo); // generates unique acc no if needed
+        
+        target.addAccount(new Account(uniqueAcc, sort)); // new account with random gen number and sort code from json user input
         JSONObject output = new JSONObject();
         output.put("account_created", "true");
-        output.put("account_number", newAccNo);
+        output.put("account_number", uniqueAcc);
         return Response.status(Response.Status.ACCEPTED).entity(output.toString()).build();
     }
 
@@ -116,14 +117,21 @@ public class CustomerResource {
         JSONObject jsonObj = new JSONObject(sortCode);
         int sort = jsonObj.getInt("sortCode");
         int newAccNo = customerService.accNoGenerator();
+        int uniqueAcc = customerService.generateUniqueAccNo(newAccNo); // generates unique acc no if needed
 
-        target.addAccount(new SavingsAccount(newAccNo, sort)); // new account with random gen number and sort code from json user input
+        target.addAccount(new SavingsAccount(uniqueAcc, sort)); // new account with random gen number and sort code from json user input
         JSONObject output = new JSONObject();
         output.put("account_created", "true");
         output.put("account_number", newAccNo);
         return Response.status(Response.Status.ACCEPTED).entity(output.toString()).build();
     }
 
+    /**
+     *
+     * @param firstName
+     * @param lastName
+     * @return customers who with matching first and last names
+     */
     @GET
     @Path("/name/{first}/{last}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -272,6 +280,16 @@ public class CustomerResource {
         return Response.status(Response.Status.FORBIDDEN).entity(rejectOutput.toString()).build();
     }
 
+    /**
+     *
+     * @param id
+     * @param accNo
+     * @param targetId
+     * @param transferAcc
+     * @param transferAmount
+     * @return status of transfer. successful transaction will transfer funds to desired account and will update both account funds appropriately 
+     * @throws JSONException
+     */
     @PUT
     @Path("/{id}/account/{accountno}/tranfer/{targetid}/{targetaccountno}") // localhost:49000/api/customer/1/account/12345678/tranfer/2/11223344
     @Produces(MediaType.APPLICATION_JSON)
@@ -308,6 +326,12 @@ public class CustomerResource {
 
     }
 
+    /**
+     *
+     * @param id
+     * @param accNo
+     * @return list of transactions for searched account
+     */
     @GET
     @Path("/{id}/account/{accountno}/transactions")
     @Produces(MediaType.APPLICATION_JSON)

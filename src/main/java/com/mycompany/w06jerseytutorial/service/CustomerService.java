@@ -48,33 +48,20 @@ public class CustomerService {
         }
         return null;
     }
-
-//    public boolean existingAccount(int accNumber) {
-//        // List<Account> allAccounts = new ArrayList<>();
-//        for (Customer customer1 : list) {
-//            List<Account> accs = customer1.getAccounts();
-//            for (Account acc : accs) {
-//                if(accNumber == acc.getAccountNo())
-//                    return true;
-//            }
-//        }
-//        return false;
-//    }
     
-//        public int existingAccount() {
-//        // List<Account> allAccounts = new ArrayList<>();
-//        int rando = accNoGenerator();
-//        for (Customer customer1 : list) {
-//            List<Account> accs = customer1.getAccounts();
-//            for (Account acc : accs) {
-//                if(accNumber == acc.getAccountNo())
-//                    return true;
-//            }
-//        }
-//        return false;
-//    }
-    
-    
+    //searches customers accounts to check if generated account number exisits - if so then generated new one untill its unique
+    public int generateUniqueAccNo(int accNumber) {
+        int rando = accNoGenerator();
+        for (Customer customer1 : list) {
+            List<Account> accs = customer1.getAccounts();
+            for (Account acc : accs) {
+                if (accNumber == acc.getAccountNo()) {
+                    return generateUniqueAccNo(rando);
+                }
+            }
+        }
+        return rando;
+    }
 
     public List<Customer> getAllCustomers() {
         return list;
