@@ -110,7 +110,8 @@ public class CustomerResource {
     /**
      *
      * @param body
-     * @return JSON string with new user info. ID is updated to end of list index
+     * @return JSON string with new user info. ID is updated to end of list
+     * index
      * @throws JSONException
      * @throws ParseException
      */
@@ -155,7 +156,7 @@ public class CustomerResource {
         target.lodge(lodgement);
 
         int newBalance = target.getAccBalance();
-        //target.addTransaction(new Transactions(new Date(), "Credit", "Lodgement", newBalance));
+        target.addTransaction(new Transactions(new Date(), "Credit", "Lodgement", newBalance));
         JSONObject output = new JSONObject();
         output.put("lodgement_made", "true");
         output.put("lodgment_amount", lodgement);
@@ -185,7 +186,7 @@ public class CustomerResource {
         if (customerService.sufficientFunds(target, withdraw) == true) {
             target.withdrawal(withdraw);
             int newBalance = target.getAccBalance();
-            //target.addTransaction(new Transactions(new Date(), "Credit", "Lodgement", newBalance));
+            target.addTransaction(new Transactions(new Date(), "Debit", "Withdrawal", newBalance));
             JSONObject output = new JSONObject();
             output.put("withdrawal_made", "true");
             output.put("withdrawal_amount", withdraw);
@@ -217,7 +218,8 @@ public class CustomerResource {
 
             int newBalance = current.getAccBalance();
             int transTargetNewBal = targetTransfer.getAccBalance();
-            //target.addTransaction(new Transactions(new Date(), "Credit", "Lodgement", newBalance));
+            current.addTransaction(new Transactions(new Date(), "Debit", "Transfer", newBalance));
+            targetTransfer.addTransaction(new Transactions(new Date(), "Credit", "Transfer", newBalance));
             JSONObject output = new JSONObject();
             output.put("transfer_made", "true");
             output.put("transfer_amount", trans);
@@ -234,6 +236,14 @@ public class CustomerResource {
         rejectOutput.put("balance", balance);
         return Response.status(Response.Status.FORBIDDEN).entity(rejectOutput.toString()).build();
 
+    }
+
+    @GET
+    @Path("/{id}/account/{accountno}/transactions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Transactions> displayTransactions(@PathParam("id") int id, @PathParam("accountno") int accNo) {
+        Account target = customerService.getAccountByAccNo(id, accNo);
+        return target.getTransactions();
     }
 
 }
