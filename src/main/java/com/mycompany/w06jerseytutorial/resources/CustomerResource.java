@@ -63,6 +63,13 @@ public class CustomerResource {
         return customerService.getCustomerById(id);
     }
 
+    @GET
+    @Path("/name/{first}/{last}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Customer getCustomerByName(@PathParam("first") String firstName, @PathParam("last") String lastName) {
+        return customerService.getCustomerByName(firstName, lastName);
+    }
+
     /**
      *
      * @param id
