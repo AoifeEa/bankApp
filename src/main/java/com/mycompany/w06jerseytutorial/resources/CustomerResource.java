@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import javax.json.Json;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -92,7 +93,7 @@ public class CustomerResource {
         int sort = jsonObj.getInt("sortCode");
         int newAccNo = customerService.accNoGenerator();
         int uniqueAcc = customerService.generateUniqueAccNo(newAccNo); // generates unique acc no if needed
-        
+
         target.addAccount(new Account(uniqueAcc, sort)); // new account with random gen number and sort code from json user input
         JSONObject output = new JSONObject();
         output.put("account_created", "true");
@@ -163,6 +164,24 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Account getAccByAccNo(@PathParam("id") int id, @PathParam("accountno") int accNo) {
         return customerService.getAccountByAccNo(id, accNo); // gets specific account by acc no
+    }
+
+    /**
+     *
+     * @param id
+     * @param accNo
+     * @return account_deleted true. deletes target account
+     * @throws JSONException
+     */
+    @DELETE
+    @Path("/{id}/account/{accountno}/delete")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteAccount(@PathParam("id") int id, @PathParam("accountno") int accNo) throws JSONException {
+        Account target = customerService.getAccountByAccNo(id, accNo); // gets specific account by acc no
+        customerService.deleteAccount(target); // deletes acc
+        JSONObject output = new JSONObject();
+        output.put("account_deleted", "true");
+        return Response.status(Response.Status.OK).entity(output.toString()).build();
     }
 
     /**
@@ -287,7 +306,8 @@ public class CustomerResource {
      * @param targetId
      * @param transferAcc
      * @param transferAmount
-     * @return status of transfer. successful transaction will transfer funds to desired account and will update both account funds appropriately 
+     * @return status of transfer. successful transaction will transfer funds to
+     * desired account and will update both account funds appropriately
      * @throws JSONException
      */
     @PUT
