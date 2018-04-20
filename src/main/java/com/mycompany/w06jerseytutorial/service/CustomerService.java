@@ -39,6 +39,12 @@ public class CustomerService {
     public void addNewCustomer(Customer newCustomer) {
         list.add(newCustomer);
     }
+    
+    
+    public void deleteAccount(Account target) {
+        list.remove(target);
+    }
+
 
     public List<Account> getAllAccounts() {
         // List<Account> allAccounts = new ArrayList<>();
